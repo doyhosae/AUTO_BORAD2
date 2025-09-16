@@ -35,7 +35,6 @@ st.markdown("게시물의 조회수 증가를 현실적으로 시뮬레이션하
 # 전역 설정 변수들 (기본값으로 초기화)
 if 'simulation_config' not in st.session_state:
     st.session_state.simulation_config = {
-        'seed': 20250916,
         'timezone': 'Asia/Seoul',
         'tick_type': '랜덤 범위',
         'tick_duration': '1h',
@@ -64,12 +63,8 @@ with tab1:
     with st.expander("⚙️ 고급 설정", expanded=False):
         # 기본 설정
         st.subheader("기본 설정")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.session_state.simulation_config['seed'] = st.number_input("시드", value=st.session_state.simulation_config['seed'], help="동일한 시드로 동일한 결과를 얻을 수 있습니다.")
-        with col2:
-            st.session_state.simulation_config['timezone'] = st.selectbox("시간대", ["Asia/Seoul"], 
-                                                                         index=0, disabled=True)
+        st.session_state.simulation_config['timezone'] = st.selectbox("시간대", ["Asia/Seoul"], 
+                                                                     index=0, disabled=True)
         
         # 제한 설정
         st.subheader("제한 설정")
@@ -124,6 +119,9 @@ with tab1:
         # 생성 개수
         post_count = st.number_input("생성 개수", value=1, min_value=1, max_value=100, help="생성할 게시물 개수")
         
+        # 시드 오프셋 설정
+        seed_offset = st.number_input("시드 오프셋", value=0, help="각 게시물의 시드 오프셋")
+        
         # 생성 버튼
         if st.button(f"🚀 {post_count}개 게시물 생성", type="primary"):
             if 'posts_data' not in st.session_state:
@@ -170,7 +168,7 @@ with tab1:
                     'stage': selected_stage,
                     'cum_views': 0,
                     'start_datetime': start_datetime.strftime("%Y-%m-%d %H:%M:%S"),
-                    'seed_offset': 0
+                    'seed_offset': seed_offset
                 })
                 created_posts.append(f"{next_id}번 ({selected_stage}단계, {start_datetime.strftime('%H:%M:%S')})")
                 next_id += 1
@@ -220,17 +218,19 @@ with tab1:
             single_start_time = datetime.combine(single_date, single_time)
         
         with col4:
-            if st.button("게시물 추가", key="single_add"):
-                if 'posts_data' not in st.session_state:
-                    st.session_state.posts_data = []
-                
-                st.session_state.posts_data.append({
-                    'post_id': new_post_id,
-                    'stage': new_stage,
-                    'cum_views': 0,
-                    'start_datetime': single_start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    'seed_offset': 0
-                })
+            single_seed_offset = st.number_input("시드 오프셋", value=0, key="single_seed")
+        
+        if st.button("게시물 추가", key="single_add"):
+            if 'posts_data' not in st.session_state:
+                st.session_state.posts_data = []
+            
+            st.session_state.posts_data.append({
+                'post_id': new_post_id,
+                'stage': new_stage,
+                'cum_views': 0,
+                'start_datetime': single_start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                'seed_offset': single_seed_offset
+            })
             
             st.success(f"✅ 게시물 {new_post_id}이 추가되었습니다!")
     
@@ -423,7 +423,7 @@ with tab3:
                         output_path = output_file.name
                     
                     # 시뮬레이션 실행
-                    simulate(posts_path, stages_path, engine_path, output_path, st.session_state.simulation_config['seed'])
+                    simulate(posts_path, stages_path, engine_path, output_path)
                     
                     # 결과 읽기
                     result_df = pd.read_csv(output_path)

@@ -43,8 +43,10 @@ def rng_from_seed(seed_int: int):
             return self.state / 2**64
     return RNG(seed_int)
 
-def seed_for_post(global_seed: int, post_id: str, seed_offset: int) -> int:
-    h = hashlib.sha256(f"{global_seed}|{post_id}|{seed_offset}".encode("utf-8")).digest()
+def seed_for_post(post_id: str, seed_offset: int) -> int:
+    # 시스템 현재 시간을 시드로 사용 (초 단위로 자동 변경)
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    h = hashlib.sha256(f"{current_time}|{post_id}|{seed_offset}".encode("utf-8")).digest()
     return int.from_bytes(h[:8], "big", signed=False)
 
 def normalize_weights(wdict: dict) -> dict:
@@ -62,7 +64,7 @@ def mean_weight_norm() -> float:
 def isoformat_tz(dt):
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
-def simulate(posts_path: str, stages_path: str, engine_path: str, out_path: str, seed: int):
+def simulate(posts_path: str, stages_path: str, engine_path: str, out_path: str):
     # Load configs
     stages_cfg = load_yaml(stages_path)
     engine_cfg = load_yaml(engine_path)
@@ -113,8 +115,8 @@ def simulate(posts_path: str, stages_path: str, engine_path: str, out_path: str,
             start_dt = start_dt.replace(tzinfo=tz)  # assume tz if missing
         seed_offset = int(r.get("seed_offset", 0))
 
-        # RNG
-        post_seed = seed_for_post(seed, post_id, seed_offset)
+        # RNG (시스템 시간 기반 시드)
+        post_seed = seed_for_post(post_id, seed_offset)
         rng = rng_from_seed(post_seed)
 
         # Target for this post
@@ -176,7 +178,6 @@ if __name__ == "__main__":
     parser.add_argument("--posts", default=posts_default, help=f"경로 미지정 시 기본값: {posts_default}")
     parser.add_argument("--stages", default=stages_default, help=f"경로 미지정 시 기본값: {stages_default}")
     parser.add_argument("--engine", default=engine_default, help=f"경로 미지정 시 기본값: {engine_default}")
-    parser.add_argument("--seed", type=int, default=20250916, help="랜덤 시드(기본: 20250916)")
     parser.add_argument("--out", default=out_default, help="미지정 시 out/simulated_YYYYMMDD_HHMMSS.csv 자동 생성")
     args = parser.parse_args()
-    simulate(args.posts, args.stages, args.engine, args.out, args.seed)
+    simulate(args.posts, args.stages, args.engine, args.out)
