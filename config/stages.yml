@@ -1,0 +1,14 @@
+stages:
+  "1":  { views_min: 10,   views_max: 50 }
+  "2":  { views_min: 50,   views_max: 100 }
+  "3":  { views_min: 100,  views_max: 150 }
+  "4":  { views_min: 150,  views_max: 300 }
+  "5":  { views_min: 300,  views_max: 500 }
+  "6":  { views_min: 500,  views_max: 800 }
+  "7":  { views_min: 800,  views_max: 1000 }
+  "8":  { views_min: 1000, views_max: 1500 }
+  "9":  { views_min: 1500, views_max: 2500 }
+  "10": { views_min: 2500, views_max: 4000 }
+  "11": { views_min: 4000, views_max: 6000 }
+  "12": { views_min: 6000, views_max: 8000 }
+  "13": { views_min: 8000, views_max: 10000 }
