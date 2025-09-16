@@ -1,11 +1,12 @@
 timezone: "Asia/Seoul"
+
 tick_duration:           # 증분 주기(범위 지정 시 랜덤)
   min: "15m"
   max: "90m"
 
 increment:              # 한 번에 올릴 수 있는 조회수 범위(모든 단계 공통)
   min: 5
-  max: 60
+  max: 100
 
 hourly_weights:         # 0~23시 가중치(합계 임의, 내부 정규화)
   "0": 0.01
