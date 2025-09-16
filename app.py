@@ -118,14 +118,11 @@ with tab1:
     
     with col2:
         # 단계 선택
-        selected_stage = st.selectbox("게시물 단계", range(1, 14), index=6, help="생성할 게시물의 단계를 선택하세요")
+        selected_stage = st.selectbox("게시물 단계", range(1, 14), index=4, help="생성할 게시물의 단계를 선택하세요")
     
     with col3:
         # 생성 개수
         post_count = st.number_input("생성 개수", value=1, min_value=1, max_value=100, help="생성할 게시물 개수")
-        
-        # 시드 오프셋 설정
-        seed_offset = st.number_input("시드 오프셋", value=0, help="각 게시물의 시드 오프셋")
         
         # 생성 버튼
         if st.button(f"🚀 {post_count}개 게시물 생성", type="primary"):
@@ -173,7 +170,7 @@ with tab1:
                     'stage': selected_stage,
                     'cum_views': 0,
                     'start_datetime': start_datetime.strftime("%Y-%m-%d %H:%M:%S"),
-                    'seed_offset': seed_offset
+                    'seed_offset': 0
                 })
                 created_posts.append(f"{next_id}번 ({selected_stage}단계, {start_datetime.strftime('%H:%M:%S')})")
                 next_id += 1
@@ -223,19 +220,17 @@ with tab1:
             single_start_time = datetime.combine(single_date, single_time)
         
         with col4:
-            single_seed_offset = st.number_input("시드 오프셋", value=0, key="single_seed")
-        
-        if st.button("게시물 추가", key="single_add"):
-            if 'posts_data' not in st.session_state:
-                st.session_state.posts_data = []
-            
-            st.session_state.posts_data.append({
-                'post_id': new_post_id,
-                'stage': new_stage,
-                'cum_views': 0,
-                'start_datetime': single_start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                'seed_offset': single_seed_offset
-            })
+            if st.button("게시물 추가", key="single_add"):
+                if 'posts_data' not in st.session_state:
+                    st.session_state.posts_data = []
+                
+                st.session_state.posts_data.append({
+                    'post_id': new_post_id,
+                    'stage': new_stage,
+                    'cum_views': 0,
+                    'start_datetime': single_start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    'seed_offset': 0
+                })
             
             st.success(f"✅ 게시물 {new_post_id}이 추가되었습니다!")
     
